@@ -10,7 +10,13 @@ import {
   Typography,
 } from "@mui/material";
 import { useEffect, useState } from "react";
-import { NavLink, Outlet, useLocation, useNavigationType } from "react-router-dom";
+import {
+  NavLink,
+  Outlet,
+  useLocation,
+  useNavigate,
+  useNavigationType,
+} from "react-router-dom";
 import HistoryLabPanel from "./components/HistoryLabPanel";
 import { useBrowserHistoryLogger } from "./hooks/useBrowserHistoryLogger";
 
@@ -25,6 +31,7 @@ const navItems = [
 
 export default function App() {
   const location = useLocation();
+  const navigate = useNavigate();
   const navigationType = useNavigationType();
 
   const [navigationCount, setNavigationCount] = useState(0);
@@ -53,6 +60,30 @@ export default function App() {
     setNavigationCount((count) => count + 1);
 
     if (navigationType === "POP") {
+      const thisUrl = `${location.pathname}${location.search}`;
+      const historyState = window.history.state;
+
+      console.log(
+        "%cPOP navigation detected!",
+        "color: #f87171; font-weight: bold;",
+      );
+      console.log("Location pathname:", location.pathname);
+      console.log("Location search:", location.search);
+      console.log("Constructed URL:", thisUrl);
+      console.log("History state on POP:", historyState);
+      console.log("---------------------------------------------------");
+
+      // ***************************************************
+      // *** DEMO: Auto-redirect from /reports to /tabs-history on POP navigation ***
+      // This simulates a scenario where the user tries to navigate back to a page that has been removed or replaced,
+      // and we want to redirect them to a valid page instead of showing an error or blank page.
+      // ***************************************************
+      if (location.pathname === "/reports") {
+        navigate("/tabs-history", { replace: true });
+      }
+    }
+
+    if (navigationType === "POP") {
       setLastNavigationMessage("Browser BACK or FORWARD was used");
     } else if (navigationType === "PUSH") {
       setLastNavigationMessage("Normal app navigation was used");
@@ -61,10 +92,10 @@ export default function App() {
     }
 
     setNavigationLog((log) =>
-      [`${navigationType}: ${location.pathname}${location.search}`, ...log].slice(
-        0,
-        1000,
-      ),
+      [
+        `${navigationType}: ${location.pathname}${location.search}`,
+        ...log,
+      ].slice(0, 1000),
     );
 
     setHistoryStack((stack) => {
@@ -101,7 +132,7 @@ export default function App() {
 
       return stack;
     });
-  }, [location, navigationType]);
+  }, [location, navigate, navigationType]);
 
   return (
     <Box>
@@ -161,7 +192,13 @@ export default function App() {
 
               <Box sx={{ display: "flex", flexDirection: "column", gap: 0.4 }}>
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography sx={{ color: "#9ca3af", minWidth: 140, fontSize: "0.72rem" }}>
+                  <Typography
+                    sx={{
+                      color: "#9ca3af",
+                      minWidth: 140,
+                      fontSize: "0.72rem",
+                    }}
+                  >
                     Current path:
                   </Typography>
                   <Typography sx={{ color: "#f9fafb", fontSize: "0.72rem" }}>
@@ -170,7 +207,13 @@ export default function App() {
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography sx={{ color: "#9ca3af", minWidth: 140, fontSize: "0.72rem" }}>
+                  <Typography
+                    sx={{
+                      color: "#9ca3af",
+                      minWidth: 140,
+                      fontSize: "0.72rem",
+                    }}
+                  >
                     Search/query:
                   </Typography>
                   <Typography sx={{ color: "#fbbf24", fontSize: "0.72rem" }}>
@@ -179,7 +222,13 @@ export default function App() {
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography sx={{ color: "#9ca3af", minWidth: 140, fontSize: "0.72rem" }}>
+                  <Typography
+                    sx={{
+                      color: "#9ca3af",
+                      minWidth: 140,
+                      fontSize: "0.72rem",
+                    }}
+                  >
                     location object:
                   </Typography>
                   <Typography
@@ -195,16 +244,34 @@ export default function App() {
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography sx={{ color: "#9ca3af", minWidth: 140, fontSize: "0.72rem" }}>
+                  <Typography
+                    sx={{
+                      color: "#9ca3af",
+                      minWidth: 140,
+                      fontSize: "0.72rem",
+                    }}
+                  >
                     Nav count:
                   </Typography>
-                  <Typography sx={{ color: "#60a5fa", fontWeight: "bold", fontSize: "0.72rem" }}>
+                  <Typography
+                    sx={{
+                      color: "#60a5fa",
+                      fontWeight: "bold",
+                      fontSize: "0.72rem",
+                    }}
+                  >
                     {navigationCount}
                   </Typography>
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography sx={{ color: "#9ca3af", minWidth: 140, fontSize: "0.72rem" }}>
+                  <Typography
+                    sx={{
+                      color: "#9ca3af",
+                      minWidth: 140,
+                      fontSize: "0.72rem",
+                    }}
+                  >
                     Nav type:
                   </Typography>
                   <Typography
@@ -224,17 +291,38 @@ export default function App() {
                 </Box>
 
                 <Box sx={{ display: "flex", alignItems: "center" }}>
-                  <Typography sx={{ color: "#9ca3af", minWidth: 140, fontSize: "0.72rem" }}>
+                  <Typography
+                    sx={{
+                      color: "#9ca3af",
+                      minWidth: 140,
+                      fontSize: "0.72rem",
+                    }}
+                  >
                     Last navigation:
                   </Typography>
-                  <Typography sx={{ color: "#60a5fa", fontWeight: "bold", fontSize: "0.72rem" }}>
+                  <Typography
+                    sx={{
+                      color: "#60a5fa",
+                      fontWeight: "bold",
+                      fontSize: "0.72rem",
+                    }}
+                  >
                     {lastNavigationMessage}
                   </Typography>
                 </Box>
               </Box>
 
-              <Box sx={{ display: "flex", alignItems: "flex-start", gap: 1, mt: 1 }}>
-                <Typography sx={{ color: "#9ca3af", minWidth: 140, fontSize: "0.72rem" }}>
+              <Box
+                sx={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: 1,
+                  mt: 1,
+                }}
+              >
+                <Typography
+                  sx={{ color: "#9ca3af", minWidth: 140, fontSize: "0.72rem" }}
+                >
                   Navigation log:
                 </Typography>
 
@@ -269,7 +357,9 @@ export default function App() {
               </Box>
 
               <Box sx={{ mt: 1.5 }}>
-                <Typography sx={{ color: "#9ca3af", fontSize: "0.72rem", mb: 0.5 }}>
+                <Typography
+                  sx={{ color: "#9ca3af", fontSize: "0.72rem", mb: 0.5 }}
+                >
                   Visual history stack:
                 </Typography>
 
@@ -284,7 +374,9 @@ export default function App() {
                           px: 1,
                           py: 0.5,
                           borderRadius: 1,
-                          bgcolor: isCurrent ? "#7f1d1d" : "rgba(255,255,255,0.04)",
+                          bgcolor: isCurrent
+                            ? "#7f1d1d"
+                            : "rgba(255,255,255,0.04)",
                           border: isCurrent
                             ? "1px solid #ef4444"
                             : "1px solid #374151",
@@ -315,7 +407,8 @@ export default function App() {
                         fontFamily: "monospace",
                       }}
                     >
-                      Forward history exists. A new PUSH will discard entries above the pointer.
+                      Forward history exists. A new PUSH will discard entries
+                      above the pointer.
                     </Typography>
                   )}
                 </Stack>
@@ -344,7 +437,10 @@ export default function App() {
             <Outlet />
           </Box>
 
-          <Card variant="outlined" sx={{ minWidth: 0, position: { lg: "sticky" }, top: { lg: 88 } }}>
+          <Card
+            variant="outlined"
+            sx={{ minWidth: 0, position: { lg: "sticky" }, top: { lg: 88 } }}
+          >
             <CardContent>
               <Typography variant="h5" gutterBottom>
                 History Lab
