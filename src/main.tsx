@@ -9,6 +9,8 @@ import ReportsPage from "./pages/ReportsPage";
 import SpaWorkflowPage from "./pages/SpaWorkflowPage";
 import TabsHistoryPage from "./pages/TabsHistoryPage";
 import UnsavedFormPage from "./pages/UnsavedFormPage";
+import MuiPersistentTabsExample from "./pages/MuiPersistentTabsExample";
+import MuiPersistentTabsHistoryPage from "./pages/MuiPersistentTabsHistoryPage";
 
 const theme = createTheme({
   palette: {
@@ -29,6 +31,11 @@ const router = createBrowserRouter([
       { path: "reports", element: <ReportsPage /> },
       { path: "spa-workflow", element: <SpaWorkflowPage /> },
       { path: "tabs-history", element: <TabsHistoryPage /> },
+      { path: "mui-persistent-tabs", element: <MuiPersistentTabsExample /> },
+      {
+        path: "mui-persistent-tabs-history",
+        element: <MuiPersistentTabsHistoryPage />,
+      },
       { path: "unsaved-form", element: <UnsavedFormPage /> },
     ],
   },

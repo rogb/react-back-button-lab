@@ -26,6 +26,8 @@ const navItems = [
   { to: "/reports", label: "Reports" },
   { to: "/spa-workflow", label: "SPA Workflow" },
   { to: "/tabs-history", label: "Tabs History" },
+  { to: "/mui-persistent-tabs", label: "MUI Persistent Tabs" },
+  { to: "/mui-persistent-tabs-history", label: "MUI Persistent Tabs History" },
   { to: "/unsaved-form", label: "Unsaved Form" },
 ];
 
@@ -78,9 +80,9 @@ export default function App() {
       // This simulates a scenario where the user tries to navigate back to a page that has been removed or replaced,
       // and we want to redirect them to a valid page instead of showing an error or blank page.
       // ***************************************************
-      if (location.pathname === "/reports") {
-        navigate("/tabs-history", { replace: true });
-      }
+      // if (location.pathname === "/reports") {
+      //   navigate("/tabs-history", { replace: true });
+      // }
     }
 
     if (navigationType === "POP") {

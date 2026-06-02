@@ -7,13 +7,13 @@ export default function TabsHistoryPage() {
   const currentTab = searchParams.get("tab") ?? "overview";
 
   const handleTabChange = (_event: React.SyntheticEvent, newValue: string) => {
-    // setSearchParams({ tab: newValue });
-    setSearchParams(
-      { tab: newValue },
-      {
-        replace: newValue === "settings",
-      },
-    );
+    setSearchParams({ tab: newValue });
+    // setSearchParams(
+    //   { tab: newValue },
+    //   {
+    //     replace: newValue === "settings",
+    //   },
+    // );
   };
 
   return (
