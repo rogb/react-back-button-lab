@@ -374,7 +374,14 @@ export default function App() {
                   Visual history stack:
                 </Typography>
 
-                <Stack spacing={0.5}>
+                <Stack
+                  spacing={0.5}
+                  sx={{
+                    maxHeight: 220,
+                    overflowY: "auto",
+                    pr: 0.5,
+                  }}
+                >
                   {historyStack.map((entry, index) => {
                     const isCurrent = index === stackPointer;
 
