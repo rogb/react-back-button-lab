@@ -328,7 +328,16 @@ export default function App() {
                   Navigation log:
                 </Typography>
 
-                <Stack spacing={0.5} sx={{ flex: 1, minWidth: 0 }}>
+                <Stack
+                  spacing={0.5}
+                  sx={{
+                    flex: 1,
+                    minWidth: 0,
+                    maxHeight: 220,
+                    overflowY: "auto",
+                    pr: 0.5,
+                  }}
+                >
                   {navigationLog.map((entry, index) => (
                     <Box
                       key={index}
