@@ -29,6 +29,7 @@ const navItems = [
   { to: "/mui-persistent-tabs", label: "MUI Persistent Tabs" },
   { to: "/mui-persistent-tabs-history", label: "MUI Persistent Tabs History" },
   { to: "/unsaved-form", label: "Unsaved Form" },
+  { to: "/upload-streaming", label: "Upload Streaming" },
 ];
 
 export default function App() {

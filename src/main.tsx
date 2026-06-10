@@ -11,6 +11,7 @@ import TabsHistoryPage from "./pages/TabsHistoryPage";
 import UnsavedFormPage from "./pages/UnsavedFormPage";
 import MuiPersistentTabsExample from "./pages/MuiPersistentTabsExample";
 import MuiPersistentTabsHistoryPage from "./pages/MuiPersistentTabsHistoryPage";
+import UploadStreamingPage from "./pages/UploadStreamingPage";
 
 const theme = createTheme({
   palette: {
@@ -37,6 +38,7 @@ const router = createBrowserRouter([
         element: <MuiPersistentTabsHistoryPage />,
       },
       { path: "unsaved-form", element: <UnsavedFormPage /> },
+      { path: "upload-streaming", element: <UploadStreamingPage /> },
     ],
   },
 ]);
