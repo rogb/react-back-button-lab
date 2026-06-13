@@ -29,6 +29,7 @@ const endpointOptions = [
 ];
 const defaultEndpointBase = endpointOptions[0];
 
+// -------------------------------------------------------
 function formatBytes(bytes: number) {
   if (!Number.isFinite(bytes) || bytes <= 0) {
     return "0 bytes";
@@ -48,6 +49,7 @@ function formatBytes(bytes: number) {
   return `${value.toFixed(value >= 10 ? 1 : 2)} ${units[unitIndex]}`;
 }
 
+// -------------------------------------------------------
 function resolveEndpointBase(endpointBase: string) {
   const trimmedEndpointBase = endpointBase.trim().replace(/\/+$/, "");
 
@@ -72,6 +74,7 @@ export default function UploadStreamingPage() {
     totalBytes > 0 ? Math.min(100, (uploadedBytes / totalBytes) * 100) : 0;
   const isUploading = status === "uploading";
 
+  // -------------------------------------------------------
   useEffect(() => {
     setEndpointBase((currentEndpointBase) =>
       currentEndpointBase.trim() === "/api/stream-upload"
@@ -80,6 +83,7 @@ export default function UploadStreamingPage() {
     );
   }, []);
 
+  // -------------------------------------------------------
   const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
 
@@ -91,6 +95,7 @@ export default function UploadStreamingPage() {
     setResult(null);
   };
 
+  // -------------------------------------------------------
   const handleUpload = () => {
     if (!selectedFile || isUploading) {
       return;
@@ -160,10 +165,12 @@ export default function UploadStreamingPage() {
     xhr.send(selectedFile);
   };
 
+  // -------------------------------------------------------
   const handleCancel = () => {
     xhrRef.current?.abort();
   };
 
+  // -------------------------------------------------------
   return (
     <PageCard title="Upload Streaming">
       <Stack spacing={2.5}>

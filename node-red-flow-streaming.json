@@ -1,0 +1,301 @@
+[
+    {
+        "id": "stream_upload_flow",
+        "type": "tab",
+        "label": "Streaming Upload API",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "stream_upload_http_in",
+        "type": "http in",
+        "z": "stream_upload_flow",
+        "name": "POST streaming upload",
+        "url": "/api/stream-upload/:filename",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 180,
+        "y": 120,
+        "wires": [
+            [
+                "stream_upload_function",
+                "1c33a677e11a0cfd"
+            ]
+        ]
+    },
+    {
+        "id": "stream_upload_function",
+        "type": "function",
+        "z": "stream_upload_flow",
+        "name": "Stream body to disk",
+        "func": "const uploadDir = \"C:\\\\junk\";\nfs.mkdirSync(uploadDir, { recursive: true });\n\nconst rawName =\n    msg.req.params.filename ||\n    msg.req.headers[\"x-filename\"] ||\n    `upload-${Date.now()}.bin`;\n\nconst fileName = path.basename(decodeURIComponent(rawName))\n    .replace(/[^a-zA-Z0-9._ -]/g, \"_\");\n\nconst filePath = path.join(uploadDir, fileName);\n\nconst body = msg.req.body;\n\nif (!body) {\n    msg.statusCode = 400;\n    msg.payload = {\n        error: \"No request body found\"\n    };\n    return msg;\n}\n\nconst buffer = Buffer.isBuffer(body)\n    ? body\n    : Buffer.from(body);\n\nfs.writeFileSync(filePath, buffer);\n\nmsg.statusCode = 200;\nmsg.payload = {\n    fileName,\n    fileSize: buffer.length,\n    savedTo: filePath\n};\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "fs",
+                "module": "fs"
+            },
+            {
+                "var": "path",
+                "module": "path"
+            },
+            {
+                "var": "stream",
+                "module": "stream"
+            }
+        ],
+        "x": 420,
+        "y": 120,
+        "wires": [
+            [
+                "stream_upload_http_response",
+                "06ada1400f3e71f0"
+            ]
+        ]
+    },
+    {
+        "id": "stream_upload_http_response",
+        "type": "http response",
+        "z": "stream_upload_flow",
+        "name": "Return upload result",
+        "statusCode": "",
+        "headers": {},
+        "x": 680,
+        "y": 120,
+        "wires": []
+    },
+    {
+        "id": "memory_stream_http_in",
+        "type": "http in",
+        "z": "stream_upload_flow",
+        "name": "POST streaming upload to memory",
+        "url": "/api/stream-upload-memory/:filename",
+        "method": "post",
+        "upload": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 300,
+        "wires": [
+            [
+                "memory_stream_function",
+                "170161431c3d3e26"
+            ]
+        ]
+    },
+    {
+        "id": "memory_stream_function",
+        "type": "function",
+        "z": "stream_upload_flow",
+        "name": "Stream body to memory",
+        "func": "const rawName =\n    msg.req.params.filename ||\n    msg.req.headers['x-filename'] ||\n    `upload-${Date.now()}.bin`;\n\nconst fileName = decodeURIComponent(rawName)\n    .split(/[\\\\/]/)\n    .pop()\n    .replace(/[^a-zA-Z0-9._-]/g, '_');\n    \nlet fileSize = 0;\nconst chunks = [];\n\nmsg.req.on('data', chunk => {\n    fileSize += chunk.length;\n    chunks.push(chunk);\n});\n\nmsg.req.on('end', () => {\n    const buffer = Buffer.concat(chunks);\n\n    // Store in Node-RED memory context\n    flow.set(`uploadedFile:${fileName}`, {\n        fileName,\n        fileSize,\n        content: buffer,\n        uploadedAt: new Date().toISOString()\n    });\n\n    msg.statusCode = 200;\n    msg.payload = {\n        fileName,\n        fileSize,\n        storedInMemoryKey: `uploadedFile:${fileName}`\n    };\n\n    node.send(msg);\n    node.done();\n});\n\nmsg.req.on('error', err => {\n    node.error(err, msg);\n\n    msg.statusCode = 500;\n    msg.payload = {\n        error: 'Upload failed',\n        details: err.message\n    };\n\n    node.send(msg);\n    node.done();\n});\n\nreturn;\n",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "path",
+                "module": "path"
+            }
+        ],
+        "x": 510,
+        "y": 300,
+        "wires": [
+            [
+                "memory_stream_http_response",
+                "d0b059cfbf1ab3cd"
+            ]
+        ]
+    },
+    {
+        "id": "memory_stream_http_response",
+        "type": "http response",
+        "z": "stream_upload_flow",
+        "name": "Return memory upload result",
+        "statusCode": "",
+        "headers": {},
+        "x": 780,
+        "y": 300,
+        "wires": []
+    },
+    {
+        "id": "26c517339de9d101",
+        "type": "comment",
+        "z": "stream_upload_flow",
+        "name": "/api/stream-upload-memory/:filename",
+        "info": "",
+        "x": 230,
+        "y": 260,
+        "wires": []
+    },
+    {
+        "id": "101bb52dc1a04ec0",
+        "type": "comment",
+        "z": "stream_upload_flow",
+        "name": "/api/stream-upload/:filename",
+        "info": "",
+        "x": 200,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "1c33a677e11a0cfd",
+        "type": "debug",
+        "z": "stream_upload_flow",
+        "name": "debug 13",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 380,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "06ada1400f3e71f0",
+        "type": "debug",
+        "z": "stream_upload_flow",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 640,
+        "y": 160,
+        "wires": []
+    },
+    {
+        "id": "686c944e03d3e8e9",
+        "type": "http in",
+        "z": "stream_upload_flow",
+        "name": "POST true streaming upload",
+        "url": "/api/true-stream-upload/:filename",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 220,
+        "y": 460,
+        "wires": [
+            [
+                "cb514b1878499c39",
+                "48792576501f6c51"
+            ]
+        ]
+    },
+    {
+        "id": "cb514b1878499c39",
+        "type": "function",
+        "z": "stream_upload_flow",
+        "name": "Save buffered body to disk",
+        "func": "const uploadDir = \"C:\\\\junk\";\nfs.mkdirSync(uploadDir, { recursive: true });\n\nconst rawName = msg.req.params.filename || msg.req.headers[\"x-filename\"] || `upload-${Date.now()}.bin`;\n\nconst fileName = path.basename(decodeURIComponent(rawName)).replace(/[^a-zA-Z0-9._ -]/g, \"_\");\nconst filePath = path.join(uploadDir, fileName);\n\nconst body = msg.req.body;\n\nif (!Buffer.isBuffer(body)) {\n    msg.statusCode = 400;\n    msg.payload = {\n        error: \"Expected binary buffer in msg.req.body\",\n        bodyType: typeof body\n    };\n    return msg;\n}\n\nfs.writeFileSync(filePath, body);\n\nmsg.statusCode = 200;\nmsg.payload = {\n    fileName,\n    fileSize: body.length,\n    savedTo: filePath\n};\n\nnode.status({ fill: \"green\", shape: \"dot\", text: `${body.length} bytes saved` });\n\ndelete msg.req.body;\n\nreturn msg;",
+        "outputs": 1,
+        "timeout": 0,
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [
+            {
+                "var": "fs",
+                "module": "fs"
+            },
+            {
+                "var": "path",
+                "module": "path"
+            }
+        ],
+        "x": 500,
+        "y": 460,
+        "wires": [
+            [
+                "de27a1477df85ff8"
+            ]
+        ]
+    },
+    {
+        "id": "de27a1477df85ff8",
+        "type": "http response",
+        "z": "stream_upload_flow",
+        "name": "Return result",
+        "statusCode": "",
+        "headers": {},
+        "x": 750,
+        "y": 460,
+        "wires": []
+    },
+    {
+        "id": "2bb255ab97848fef",
+        "type": "comment",
+        "z": "stream_upload_flow",
+        "name": "/api/true-stream-upload/:filename",
+        "info": "",
+        "x": 230,
+        "y": 420,
+        "wires": []
+    },
+    {
+        "id": "48792576501f6c51",
+        "type": "debug",
+        "z": "stream_upload_flow",
+        "name": "debug 15",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 440,
+        "y": 520,
+        "wires": []
+    },
+    {
+        "id": "170161431c3d3e26",
+        "type": "debug",
+        "z": "stream_upload_flow",
+        "name": "debug 16",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 460,
+        "y": 340,
+        "wires": []
+    },
+    {
+        "id": "d0b059cfbf1ab3cd",
+        "type": "debug",
+        "z": "stream_upload_flow",
+        "name": "debug 17",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 720,
+        "y": 340,
+        "wires": []
+    }
+]
