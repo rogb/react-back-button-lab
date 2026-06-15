@@ -26,6 +26,7 @@ const endpointOptions = [
   `${nodeRedOrigin}/api/true-stream-upload`,
   `${nodeRedOrigin}/api/stream-upload`,
   `${nodeRedOrigin}/api/stream-upload-memory`,
+  `${nodeRedOrigin}/api/formdata-upload`,
 ];
 const defaultEndpointBase = endpointOptions[0];
 
@@ -101,9 +102,12 @@ export default function UploadStreamingPage() {
       return;
     }
 
-    const url = `${resolveEndpointBase(endpointBase)}/${encodeURIComponent(
-      selectedFile.name,
-    )}`;
+    const resolvedEndpointBase = resolveEndpointBase(endpointBase);
+    const isFormDataUpload =
+      resolvedEndpointBase.indexOf("/api/formdata-upload") >= 0;
+    const url = isFormDataUpload
+      ? resolvedEndpointBase
+      : `${resolvedEndpointBase}/${encodeURIComponent(selectedFile.name)}`;
     const xhr = new XMLHttpRequest();
 
     xhrRef.current = xhr;
@@ -159,10 +163,18 @@ export default function UploadStreamingPage() {
       setMessage("Upload cancelled.");
     };
 
-    xhr.open("POST", url);
-    xhr.setRequestHeader("Content-Type", "application/octet-stream");
-    xhr.setRequestHeader("X-Filename", selectedFile.name);
-    xhr.send(selectedFile);
+    if (isFormDataUpload) {
+      xhr.open("POST", url);
+      const formData = new FormData();
+      formData.append("file", selectedFile, selectedFile.name);
+      xhr.setRequestHeader("X-Filename", selectedFile.name);
+      xhr.send(formData);
+    } else {
+      xhr.open("POST", url);
+      xhr.setRequestHeader("Content-Type", "application/octet-stream");
+      xhr.setRequestHeader("X-Filename", selectedFile.name);
+      xhr.send(selectedFile);
+    }
   };
 
   // -------------------------------------------------------
@@ -180,7 +192,11 @@ export default function UploadStreamingPage() {
           value={endpointBase}
           onChange={(event) => setEndpointBase(event.target.value)}
           size="small"
-          helperText="The selected filename is appended to this path."
+          helperText={
+            endpointBase.indexOf("/api/formdata-upload") >= 0
+              ? "Multipart FormData is posted to this exact path."
+              : "The selected filename is appended to this path."
+          }
           disabled={isUploading}
           fullWidth
         >
